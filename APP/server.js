@@ -3,10 +3,10 @@
 *** TO DO ***
 
 [x] add create-react-app as global dependency
-[] create repo on Github
-[] clone project in VS Code
-[] create react app in new project (call the folder APP)
-[] move this file over to the new file as the main entry point
+[x] create repo on Github
+[x] clone project in VS Code
+[x] create react app in new project (call the folder APP)
+[x] move this file over to the new file as the main entry point
 [] create front-end using material-ui next
 [] create foxx manifest
 
