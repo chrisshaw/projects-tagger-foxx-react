@@ -1,17 +1,3 @@
-/*
-
-*** TO DO ***
-
-[x] add create-react-app as global dependency
-[x] create repo on Github
-[x] clone project in VS Code
-[x] create react app in new project (call the folder APP)
-[x] move this file over to the new file as the main entry point
-[] create front-end using material-ui next
-[] create foxx manifest
-
-*/
-
 const arangodb = require('@arangodb')
 const db = arangodb.db
 const aql = arangodb.aql
@@ -28,29 +14,34 @@ router.get( (req, res) => {
 
 router.get('/api/new-project', (req, res) => {
     try {
-        const topics = db._query(aql`
+        console.log('New project endpoint hit.')
+        const project = db._query(aql`
             for p in projects
             filter !HAS(p, 'topics')
             sort RAND()
             limit 1
             return KEEP(p, '_id', '_key', 'name', 'link', 'details')
-        `).toArray()
-        res.status(200).json(topics)
+        `).toArray().pop()
+        console.log(`Project is ${project.name}`)
+        res.status(200).json(project)
     } catch (err) {
         res.sendStatus(500)
     }
 })
 
 // put, post, or patch?
-router.put('/api/projects/:projectKey', (req, res) => {
+router.post('/api/:projectKey/update', (req, res) => {
     try {
+        console.log('Project update endpoint hit.')
         const projects = db.projects
         const projectKey = req.pathParams.projectKey
         const topics = req.queryParams.topics.split(',')
 
         const project = projects.document(projectKey)
+        console.log(project)
         const result = projects.update(project, { topics: topics })
-        res.sendStatus(200)
+        console.log('Project updated.')
+        res.status(201).send( { responseMessage: `Project ${projectKey} updated with ${topics.join(', ')}` })
     } catch (err) {
         res.sendStatus(500)
     }
@@ -66,7 +57,9 @@ router.get('/api/autocomplete', (req, res) => {
                 for t in p.topics
                 return distinct t
         `).toArray()
-        res.status(200).json(result)
+        console.log('Autocomplete options endpoint reached.')
+        console.log(result)
+        res.status(200).json( { tags: result } )
     } catch (err) {
         res.sendStatus(500)
     }
