@@ -55,6 +55,7 @@ router.get('/api/autocomplete', (req, res) => {
             for p in projects
             filter HAS(p, 'topics')
                 for t in p.topics
+                sort t
                 return distinct t
         `).toArray()
         console.log('Autocomplete options endpoint reached.')

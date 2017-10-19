@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Creatable} from 'react-select';
+import TagForm from './TagForm'
 
 export default class Tagger extends Component {
     constructor(props) {
@@ -17,23 +17,25 @@ export default class Tagger extends Component {
     }
 
     componentWillMount() {
-        this.fetchProject().then( project => this.setState( {
-            projectDetails: {
-                name: project.name || null,
-                overview: project.details.overview || null,
-                drivingQuestion: project.details.drivingQuestion || null,
-                finalProducts: project.details.finalProducts || null,
-                checkpoints: project.details.checkpoints || null,
-                requirements: project.details.requirements || null
-            }
-        } ) )
+        this.fetchProject().then( project => {
+            this.projectKey = project._key
+            this.setState( {
+                projectDetails: {
+                    name: project.name || null,
+                    overview: project.details.overview || null,
+                    drivingQuestion: project.details.drivingQuestion || null,
+                    finalProducts: project.details.finalProducts || null,
+                    checkpoints: project.details.checkpoints || null,
+                    requirements: project.details.requirements || null
+                }
+            } ) 
+        } )
     }
 
     async fetchProject() {
         const response = await fetch('/api/new-project');
-        console.log(response)
-        const project = response.body
-        this.projectKey = project._key;
+        const json = await response.json()
+        return json
     }
 
     render () {
@@ -46,7 +48,7 @@ export default class Tagger extends Component {
                                 checkpoints={this.state.projectDetails.checkpoints}
                                 requirements={this.state.projectDetails.requirements}
                 />
-                <TagForm projectKey={this.state.projectDetails.key} />
+                <TagForm projectKey={this.projectKey} />
             </div>
         )
     };
@@ -68,39 +70,4 @@ const ProjectDetails = props => {
             {props.requirements ? props.requiremnts.map( requirement => <p>{requirement}</p> ) : "No requirements."}
         </div>
     );
-};
-
-class TagForm extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            tags: []
-        }
-    }
-
-    componentWillMount() {
-        this.fetchTags().then( tags => this.setState( {tags: tags} ) )
-    }
-
-    async fetchTags() {
-        const response = await fetch('/api/autocomplete')
-        return response.tags
-    }
-
-    render() {
-        return (
-            <form action={`/api/${this.props.projectKey}/update`} method="post">
-                <Creatable  multi={true}
-                            name="Tags"
-                            joinValues={true}
-                            delimiter=","
-                            noResultsText="No results"
-                            options={this.state.tags ? this.state.tags.map( tag => {
-                                return { label: tag, value: tag }
-                            } ) : [] }
-                />
-                <input type="submit" value="Submit" />
-            </form>
-        );
-    }
 };
