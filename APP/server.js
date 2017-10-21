@@ -32,22 +32,29 @@ router.get('/api/new-project', (req, res) => {
 // put, post, or patch?
 router.post('/api/:projectKey/update', (req, res) => {
     try {
-        console.log('Project update endpoint hit.')
+        console.log('>>>>>>> Project update endpoint hit.')
         const projects = db.projects
         const projectKey = req.pathParams.projectKey
-        const topics = req.queryParams.topics.split(',')
+        console.log(`Project key: ${projectKey}`)
+        console.log(`Request body: ${req.body}`)
+        for (const [key, value] of Object.entries(req.body)) {
+            console.log(key, value)
+        }
+        const topics = req.body.tags
 
-        const project = projects.document(projectKey)
+        const project = projects.document(projectKey.toString())
         console.log(project)
         const result = projects.update(project, { topics: topics })
         console.log('Project updated.')
-        res.status(201).send( { responseMessage: `Project ${projectKey} updated with ${topics.join(', ')}` })
+        res.status(200).json( { responseMessage: `Project ${projectKey} updated with ${topics.join(', ')}` })
     } catch (err) {
-        res.sendStatus(500)
+        console.log(err.toString())
+        res.status(500).json( { responseMessage: err.toString } )
     }
 })
 .pathParam('projectKey', joi.number().required())
 .queryParam('topics', joi.string())
+.body(joi.object().required())
 
 router.get('/api/autocomplete', (req, res) => {
     try {
@@ -55,7 +62,7 @@ router.get('/api/autocomplete', (req, res) => {
             for p in projects
             filter HAS(p, 'topics')
                 for t in p.topics
-                sort t
+                sort t desc
                 return distinct t
         `).toArray()
         console.log('Autocomplete options endpoint reached.')
