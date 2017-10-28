@@ -59,15 +59,44 @@ router.post('/api/:projectKey/update', (req, res) => {
 router.get('/api/autocomplete', (req, res) => {
     try {
         const result = db._query(aql`
-            for p in projects
-            filter HAS(p, 'topics')
-                for t in p.topics
-                sort t desc
-                return distinct t
+            let standards = (
+                for s in standards
+                sort s._id desc
+                return distinct s._id
+            )
+            let topics = (
+                for p in projects
+                filter HAS(p,'topics')
+                    for t in p.topics
+                    sort t desc
+                    return distinct t
+            )
+            let products = (
+                for p in projects
+                filter HAS(p, 'finalProducts')
+                    and LENGTH(p.finalProducts) > 0
+                    for pr in p.finalProducts
+                    sort pr desc
+                    return distinct pr
+            )
+            let checkpoints = (
+                for p in projects
+                filter HAS(p. 'checkpoints')
+                    and LENGTH(p.checkpoints) > 0
+                    for c in p.checkpoints
+                    sort c desc
+                    return distinct c
+            )
+            return {
+                'standards': standards,
+                'topics': topics,
+                'products': products,
+                'checkpoints': checkpoints
+            }
         `).toArray()
         console.log('Autocomplete options endpoint reached.')
         console.log(result)
-        res.status(200).json( { tags: result } )
+        res.status(200).json( { options: result.pop() } )
     } catch (err) {
         res.sendStatus(500)
     }
