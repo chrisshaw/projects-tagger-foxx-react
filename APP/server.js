@@ -12,12 +12,11 @@ router.get( (req, res) => {
     // send the app up
 })
 
-router.get('/api/new-project', (req, res) => {
+router.get('/api/any-project', (req, res) => {
     try {
         console.log('New project endpoint hit.')
         const project = db._query(aql`
             for p in projects
-            filter !HAS(p, 'topics')
             sort RAND()
             limit 1
             return KEEP(p, '_id', '_key', 'name', 'link', 'details')
@@ -58,6 +57,7 @@ router.post('/api/:projectKey/update', (req, res) => {
 
 router.get('/api/autocomplete', (req, res) => {
     try {
+        console.log('Autocomplete endpoint reached.')
         const result = db._query(aql`
             let standards = (
                 for s in standards
@@ -73,7 +73,7 @@ router.get('/api/autocomplete', (req, res) => {
             )
             let products = (
                 for p in projects
-                filter HAS(p, 'finalProducts')
+                filter HAS(p.details, 'finalProducts')
                     and LENGTH(p.finalProducts) > 0
                     for pr in p.finalProducts
                     sort pr desc
@@ -81,7 +81,7 @@ router.get('/api/autocomplete', (req, res) => {
             )
             let checkpoints = (
                 for p in projects
-                filter HAS(p. 'checkpoints')
+                filter HAS(p.details, 'checkpoints')
                     and LENGTH(p.checkpoints) > 0
                     for c in p.checkpoints
                     sort c desc
@@ -94,10 +94,11 @@ router.get('/api/autocomplete', (req, res) => {
                 'checkpoints': checkpoints
             }
         `).toArray()
-        console.log('Autocomplete options endpoint reached.')
+        console.log('Autocomplete options found.')
         console.log(result)
         res.status(200).json( { options: result.pop() } )
     } catch (err) {
+        console.log(err.toString())
         res.sendStatus(500)
     }
 })
