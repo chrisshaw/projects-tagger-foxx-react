@@ -1,9 +1,7 @@
 
 import React, { Component } from 'react';
-import Multiselect from 'react-widgets/lib/Multiselect'
-import DropdownList from 'react-widgets/lib/DropdownList'
-import 'react-widgets/dist/css/react-widgets.css'
-import './ProjectForm.css'
+import './Project.css'
+import ProjectSection from './ProjectSection'
 
 const messages = {
     topics: {
@@ -11,44 +9,56 @@ const messages = {
     }
 }
 
-export default class ProjectForm extends Component {
+export default class Project extends Component {
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
-            name: this.props.name,
-            overview: this.props.overview,
-            drivingQuestion: this.props.drivingQuestion,
-            finalProducts: this.props.finalProducts,
-            checkpoints: this.props.checkpoints,
-            requirements: this.props.requirements,
-            topics: this.props.topics,
-            standards: this.props.standards,
-            options: {
-                standards: [],
-                topics: [],
-                products: [],
-                checkpoints: []
-            }
+            name: '',
+            link: '',
+            overview: '',
+            drivingQuestion: '',
+            finalProducts: [],
+            checkpoints: [],
+            requirements: [],
+            topics: [],
+            standards: [],
+            options: {}
         }
     }
 
     async componentDidMount() {
-        const response = await fetch('/api/autocomplete')
-        const options = await response.json()
+        const project = await this.fetchJSON('/api/any-project')
+        console.log(project)
+        const options = await this.fetchJSON('/api/autocomplete')
         console.log(options)
-        this.setState({ options })
+        
+        this.projectKey = project._key
+        this.setState( {
+            name: project.name || '',
+            link: project.link || '',
+            overview: project.details.overview || '',
+            drivingQuestion: project.details.drivingQuestion || '',
+            finalProducts: project.details.finalProducts || [],
+            checkpoints: project.details.checkpoints || [],
+            requirements: project.details.requirements || '',
+            topics: project.topics || [],
+            standards: project.standards || [],
+            options: options || {}
+        } ) 
     }
 
-    fetchOptions = async () => {
-        const response = await fetch('/api/autocomplete')
+    fetchJSON = async url => {
+        const response = await fetch(url);
         const json = await response.json()
-        return json.options
+        return json
     }
 
-    handleCreate = newTag => {
+    handleCreate = e => {
         this.setState((prevState, props) => ({
-            options: [...prevState.options, newTag.toLowerCase()],
-            value: [...prevState.value, newTag.toLowerCase()]
+            options: {
+                [e.target.name]: [...prevState.options[e.target.name], e.target.value.toLowerCase()]
+            },
+            [e.target.name]: [...prevState[e.target.name], e.target.value.toLowerCase()]
         }))
     }
 
@@ -57,11 +67,11 @@ export default class ProjectForm extends Component {
     }
 
     handleAdd = value => {
-        console.log(`handleAdd value: ${value}`)
+        console.log('Handle add:', '\n', value)
     }
 
     handleRemove = value => {
-        console.log(`handleRemove value: ${value}`)
+        console.log('Handle remove:', '\n', value)
     }
 
     handleSubmit = async e => {
@@ -79,10 +89,12 @@ export default class ProjectForm extends Component {
         )
         const jsonResult = await result.json()
         alert(jsonResult.responseMessage)
+        e.preventDefault()
         window.location.reload()
     }
 
     render() {
+        console.log(this.state.options)
         return (
             <form onSubmit={this.handleSubmit}>
                 <h2>{this.state.name}</h2>
@@ -96,21 +108,31 @@ export default class ProjectForm extends Component {
                     header="Driving Question"
                     type="text"
                     value={this.state.drivingQuestion}
+                    onChange={this.handleChange}
                 />
                 <ProjectSection
                     header="Final Products"
                     type="multitextinput"
                     value={this.state.finalProducts}
+                    data={this.state.options.finalProducts}
+                    onChange={this.handleChange}
+                    handleAdd={this.handleAdd}
+                    handleRemove={this.handleRemove}
                 />
                 <ProjectSection
                     header="Checkpoints"
                     type="multitextinput"
                     value={this.state.checkpoints}
+                    data={this.state.options.checkpoints}
+                    onChange={this.handleChange}
+                    handleAdd={this.handleAdd}
+                    handleRemove={this.handleRemove}
                 />
                 <ProjectSection
                     header="Custom Requirements"
-                    type="multitextinput"
+                    type="text"
                     value={this.state.requirements}
+                    onChange={this.handleChange}
                 />
                 <ProjectSection
                     allowCreate
@@ -127,60 +149,11 @@ export default class ProjectForm extends Component {
                     header="Standards"
                     type="multiselect"
                     value={this.state.standards}
+                    data={this.state.options.standards}
+                    onChange={this.handleChange}
                 />
                 <input type="submit" value="Submit" />
             </form>
         );
     }
 };
-
-const ProjectSection = props => {
-    let section = <h3>${props.header || "No data."}</h3>
-
-    if (props.type === 'text') {
-        section += <TextArea {...props} />
-    } else if (props.type === 'multiselect') {
-        section += <Multiselect {...props} />
-    } else if (props.type === 'multitextinput') {
-        section += <MultiTextInput {...props} />
-    }
-
-    return section
-}
-
-const MultiTextInput = props => {
-    let inputs = props.value.map( (oneValue, i) => {
-        return <AddableDropdownList
-                    key={i}
-                    type="text"
-                    name={`value_${i}`}
-                    value={oneValue}
-                />
-    })
-    
-    return inputs
-}
-
-const AddableDropdownList = props => {
-    return (
-        <div>
-            <DropdownList {...props} />
-            <input
-                type="button"
-                value="Add"
-                onClick={props.handleAdd}
-            />
-            <input
-                type="button"
-                value="Remove"
-                onClick={props.handleRemove}
-            />
-        </div>
-    )
-
-}
-
-const TextArea = props => {
-    /*just use a textarea exept with a change handler */
-    return
-}
