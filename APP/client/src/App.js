@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import './App.css';
-import Tagger from './components/Tagger'
+import ProjectFetcher from './components/ProjectFetcher'
 
 class App extends Component {
   render() {
@@ -15,7 +15,7 @@ class App extends Component {
             </p>
           </header>
           <main>
-            <Tagger />
+            <ProjectFetcher />
           </main>
         </div>
       </MuiThemeProvider>
