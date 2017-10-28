@@ -49,13 +49,13 @@ router.post('/api/:projectKey/update', (req, res) => {
         for (const [key, value] of Object.entries(req.body)) {
             console.log(key, value)
         }
-        const topics = req.body.tags
+        const updatedProject = req.body
 
         const project = projects.document(projectKey.toString())
         console.log(project)
-        const result = projects.update(project, { topics: topics })
+        const result = projects.update(project, updatedProject)
         console.log('Project updated.')
-        res.status(200).json( { responseMessage: `Project ${projectKey} updated with ${topics.join(', ')}` })
+        res.status(200).json( { responseMessage: `Project ${projectKey} updated.` } )
     } catch (err) {
         console.log(err.toString())
         res.status(500).json( { responseMessage: err.toString } )
@@ -100,13 +100,13 @@ router.get('/api/autocomplete', (req, res) => {
             return {
                 'standards': standards,
                 'topics': topics,
-                'products': products,
+                'finalProducts': products,
                 'checkpoints': checkpoints
             }
         `).toArray()
         console.log('Autocomplete options found.')
         console.log(result)
-        res.status(200).json( { options: result.pop() } )
+        res.status(200).json( result.pop() )
     } catch (err) {
         console.log(err.toString())
         res.sendStatus(500)

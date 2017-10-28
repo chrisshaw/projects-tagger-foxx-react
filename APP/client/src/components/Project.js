@@ -44,7 +44,7 @@ export default class Project extends Component {
             topics: project.topics || [],
             standards: project.standards || []
         } ) 
-        this.setState({ options: options.options })
+        this.setState({ options })
     }
 
     fetchJSON = async url => {
@@ -53,39 +53,68 @@ export default class Project extends Component {
         return json
     }
 
-    handleCreate = e => {
-        console.log('Handle create:','\n', e)
-        console.log('e.target.value', e.target.value)
-        // this.setState((prevState, props) => ({
-        //     options: {
-        //         [e.target.name]: [...prevState.options[e.target.name], e.target.value.toLowerCase()]
-        //     },
-        //     [e.target.name]: [...prevState[e.target.name], e.target.value.toLowerCase()]
-        // }))
-    }
+    getValue = (e, valueKey) => {
+        // console.log(e, valueKey)
 
-    handleChange = (e, valueKey) => {
-        let value = ''
         if (['overview','drivingQuestion','requirements'].includes(valueKey)) {
-            value = e.target.value
+            return e.target.value
         } else if(['topics','standards'].includes(valueKey)) {
-            value = e
+            return e
+        } else if (['finalProducts','checkpoints'].includes(valueKey)) {
+            return e.value
         }
+    }
 
+    handleCreate = valueKey => e => {
+        let value = this.getValue(e, valueKey)
         console.log('Handle change:','\n', `value: ${value}`, '\n', `valueKey: ${valueKey}`)
-        this.setState( { [valueKey]: value })
+        this.setState( (prevState, props) => {
+            let newValue = null
+            if (e.i !== undefined) {
+                // the state value is an array and we needed to send in the index
+                newValue = prevState[valueKey].slice()
+                newValue[e.i] = value
+            } else {
+                newValue = value
+            }
+            const newOptions = prevState.options
+            newOptions[valueKey] = [...newOptions[valueKey], value]
+            return {
+                options: newOptions,
+                [valueKey]: newValue
+            }
+        })
     }
 
-    handleAdd = value => {
-        console.log('Handle add:', '\n', value)
+    handleChange = valueKey => e => {
+        let value = this.getValue(e, valueKey)
+        if (e.i !== undefined) {
+            // the state value is an array and we needed to send in the index
+            this.setState( (prevState, props) => { 
+                const values = prevState[valueKey].slice()
+                values[e.i] = value
+                return { [valueKey]: values }
+            })
+        } else {
+            this.setState( { [valueKey]: value })
+        }
     }
 
-    handleRemove = value => {
-        console.log('Handle remove:', '\n', value)
+    handleAdd = valueKey => () => {
+        // console.log('Handle add:', '\n', valueKey)
+        this.setState((prevState, props) =>  ({ [valueKey]: [...prevState[valueKey], ''] }) )
+    }
+
+    handleRemove = valueKey => () => {
+        this.setState((prevState, props) => { 
+            const values = prevState[valueKey]
+            values.pop()
+            return { [valueKey]: values }
+        })
     }
 
     handleSubmit = async e => {
-        const tags = this.state.value.slice()
+        const { options, ...project } = this.state
         const result = await fetch(
             `/api/${this.props.projectKey}/update`,
             {
@@ -94,7 +123,7 @@ export default class Project extends Component {
                     'Content-Type': 'application/json',
                 },
                 method: "POST",
-                body: JSON.stringify({ tags: tags })
+                body: JSON.stringify({ project })
             }
         )
         const jsonResult = await result.json()
@@ -104,7 +133,7 @@ export default class Project extends Component {
     }
 
     render() {
-        // console.log('>>>>> state', '\n', this.state)
+        console.log('>>>>> state', '\n', this.state)
         return (
             <form onSubmit={this.handleSubmit}>
                 <h2>{this.state.name}</h2>
@@ -112,13 +141,13 @@ export default class Project extends Component {
                     header="Project Overview"
                     type="text"
                     value={this.state.overview}
-                    onChange={value => this.handleChange(value, 'overview')}
+                    onChange={this.handleChange('overview')}
                 />
                 <ProjectSection
                     header="Driving Question"
                     type="text"
                     value={this.state.drivingQuestion}
-                    onChange={value => this.handleChange(value, 'drivingQuestion')}
+                    onChange={this.handleChange('drivingQuestion')}
                 />
                 <ProjectSection
                     header="Final Products"
@@ -126,12 +155,13 @@ export default class Project extends Component {
                     value={this.state.finalProducts}
                     data={this.state.options.finalProducts}
                     filter="contains"
-                    onChange={value => this.handleChange(value, 'finalProducts')}
+                    onChange={this.handleChange('finalProducts')}
                     messages={messages.topics}
                     allowCreate
-                    onCreate={this.handleCreate}
-                    handleAdd={this.handleAdd}
-                    handleRemove={this.handleRemove}
+                    onCreate={this.handleCreate('finalProducts')}
+                    handleAdd={this.handleAdd('finalProducts')}
+                    handleRemove={this.handleRemove('finalProducts')}
+                    placeholder="Select something"
                 />
                 <ProjectSection
                     header="Checkpoints"
@@ -139,18 +169,19 @@ export default class Project extends Component {
                     value={this.state.checkpoints}
                     data={this.state.options.checkpoints}
                     filter="contains"
-                    onChange={value => this.handleChange(value, 'checkpoints')}
+                    onChange={this.handleChange('checkpoints')}
                     messages={messages.topics}
                     allowCreate
-                    onCreate={this.handleCreate}
-                    handleAdd={this.handleAdd}
-                    handleRemove={this.handleRemove}
+                    onCreate={this.handleCreate('checkpoints')}
+                    handleAdd={this.handleAdd('checkpoints')}
+                    handleRemove={this.handleRemove('checkpoints')}
+                    placeholder="Select something"
                 />
                 <ProjectSection
                     header="Custom Requirements"
                     type="text"
                     value={this.state.requirements}
-                    onChange={value => this.handleChange(value, 'requirements')}
+                    onChange={this.handleChange('requirements')}
                 />
                 <ProjectSection
                     header="Topics"
@@ -158,10 +189,10 @@ export default class Project extends Component {
                     value={this.state.topics}
                     data={this.state.options.topics}
                     filter="contains"
-                    onChange={value => this.handleChange(value, 'topics')}
+                    onChange={this.handleChange('topics')}
                     messages={messages.topics}
                     allowCreate
-                    onCreate={this.handleCreate}
+                    onCreate={this.handleCreate('topics')}
                 />
                 <ProjectSection
                     header="Standards"
@@ -169,7 +200,7 @@ export default class Project extends Component {
                     value={this.state.standards}
                     data={this.state.options.standards}
                     filter="contains"
-                    onChange={value => this.handleChange(value, 'standarsd')}
+                    onChange={this.handleChange('standards')}
                 />
                 <input type="submit" value="Submit" />
             </form>
