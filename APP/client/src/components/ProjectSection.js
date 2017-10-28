@@ -6,7 +6,7 @@ import './ProjectSection.css'
 
 export const ProjectSection = props => {
     const type = props.type
-    Object.entries(props).forEach( ([key, value]) => console.log(key, value))
+    // Object.entries(props).forEach( ([key, value]) => console.log(key, value))
 
     let section = [<h3 key="header">{props.header || "No data."}</h3>]
 
@@ -23,20 +23,16 @@ export const ProjectSection = props => {
 export const MultiTextInput = props => {
     const { value, ...otherProps } = props
     let inputs = value.map( (oneValue, i) => {
-        return <AddableDropdownList
+        return <DropdownList
                     key={i}
                     value={oneValue}
                     {...otherProps}
                 />
     })
     
-    return inputs
-}
-
-export const AddableDropdownList = props => {
     return (
         <div>
-            <DropdownList {...props} />
+            {inputs}
             <input
                 type="button"
                 value="Add"
@@ -47,9 +43,8 @@ export const AddableDropdownList = props => {
                 value="Remove"
                 onClick={props.handleRemove}
             />
-        </div>
+        </div>            
     )
-
 }
 
 export const TextArea = props => {

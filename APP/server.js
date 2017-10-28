@@ -19,7 +19,17 @@ router.get('/api/any-project', (req, res) => {
             for p in projects
             sort RAND()
             limit 1
-            return KEEP(p, '_id', '_key', 'name', 'link', 'details')
+            return MERGE(
+                KEEP(p, '_id', '_key', 'name', 'link', 'details', 'topics'),
+                { standards: (
+                    for s
+                    in outbound p._id
+                    alignsTo
+                    filter IS_SAME_COLLECTION('standards', s._id)
+                    sort s._key desc
+                    return s._key
+                ) }
+            )
         `).toArray().pop()
         console.log(`Project is ${project.name}`)
         res.status(200).json(project)

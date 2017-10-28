@@ -5,7 +5,7 @@ import ProjectSection from './ProjectSection'
 
 const messages = {
     topics: {
-        createOption: 'Request a new topic...'
+        createOption: 'Create new'
     }
 }
 
@@ -42,9 +42,9 @@ export default class Project extends Component {
             checkpoints: project.details.checkpoints || [],
             requirements: project.details.requirements || '',
             topics: project.topics || [],
-            standards: project.standards || [],
-            options: options || {}
+            standards: project.standards || []
         } ) 
+        this.setState({ options: options.options })
     }
 
     fetchJSON = async url => {
@@ -54,16 +54,26 @@ export default class Project extends Component {
     }
 
     handleCreate = e => {
-        this.setState((prevState, props) => ({
-            options: {
-                [e.target.name]: [...prevState.options[e.target.name], e.target.value.toLowerCase()]
-            },
-            [e.target.name]: [...prevState[e.target.name], e.target.value.toLowerCase()]
-        }))
+        console.log('Handle create:','\n', e)
+        console.log('e.target.value', e.target.value)
+        // this.setState((prevState, props) => ({
+        //     options: {
+        //         [e.target.name]: [...prevState.options[e.target.name], e.target.value.toLowerCase()]
+        //     },
+        //     [e.target.name]: [...prevState[e.target.name], e.target.value.toLowerCase()]
+        // }))
     }
 
-    handleChange = value => {
-        this.setState({ value })
+    handleChange = (e, valueKey) => {
+        let value = ''
+        if (['overview','drivingQuestion','requirements'].includes(valueKey)) {
+            value = e.target.value
+        } else if(['topics','standards'].includes(valueKey)) {
+            value = e
+        }
+
+        console.log('Handle change:','\n', `value: ${value}`, '\n', `valueKey: ${valueKey}`)
+        this.setState( { [valueKey]: value })
     }
 
     handleAdd = value => {
@@ -94,7 +104,7 @@ export default class Project extends Component {
     }
 
     render() {
-        console.log(this.state.options)
+        // console.log('>>>>> state', '\n', this.state)
         return (
             <form onSubmit={this.handleSubmit}>
                 <h2>{this.state.name}</h2>
@@ -102,20 +112,24 @@ export default class Project extends Component {
                     header="Project Overview"
                     type="text"
                     value={this.state.overview}
-                    onChange={this.handleChange}
+                    onChange={value => this.handleChange(value, 'overview')}
                 />
                 <ProjectSection
                     header="Driving Question"
                     type="text"
                     value={this.state.drivingQuestion}
-                    onChange={this.handleChange}
+                    onChange={value => this.handleChange(value, 'drivingQuestion')}
                 />
                 <ProjectSection
                     header="Final Products"
                     type="multitextinput"
                     value={this.state.finalProducts}
                     data={this.state.options.finalProducts}
-                    onChange={this.handleChange}
+                    filter="contains"
+                    onChange={value => this.handleChange(value, 'finalProducts')}
+                    messages={messages.topics}
+                    allowCreate
+                    onCreate={this.handleCreate}
                     handleAdd={this.handleAdd}
                     handleRemove={this.handleRemove}
                 />
@@ -124,7 +138,11 @@ export default class Project extends Component {
                     type="multitextinput"
                     value={this.state.checkpoints}
                     data={this.state.options.checkpoints}
-                    onChange={this.handleChange}
+                    filter="contains"
+                    onChange={value => this.handleChange(value, 'checkpoints')}
+                    messages={messages.topics}
+                    allowCreate
+                    onCreate={this.handleCreate}
                     handleAdd={this.handleAdd}
                     handleRemove={this.handleRemove}
                 />
@@ -132,25 +150,26 @@ export default class Project extends Component {
                     header="Custom Requirements"
                     type="text"
                     value={this.state.requirements}
-                    onChange={this.handleChange}
+                    onChange={value => this.handleChange(value, 'requirements')}
                 />
                 <ProjectSection
-                    allowCreate
                     header="Topics"
                     type="multiselect"
                     value={this.state.topics}
                     data={this.state.options.topics}
                     filter="contains"
+                    onChange={value => this.handleChange(value, 'topics')}
                     messages={messages.topics}
+                    allowCreate
                     onCreate={this.handleCreate}
-                    onChange={this.handleChange}
                 />
                 <ProjectSection
                     header="Standards"
                     type="multiselect"
                     value={this.state.standards}
                     data={this.state.options.standards}
-                    onChange={this.handleChange}
+                    filter="contains"
+                    onChange={value => this.handleChange(value, 'standarsd')}
                 />
                 <input type="submit" value="Submit" />
             </form>
