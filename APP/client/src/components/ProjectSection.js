@@ -21,12 +21,13 @@ export const ProjectSection = props => {
 }
 
 export const MultiTextInput = props => {
-    const { value, onChange, ...otherProps } = props
+    const { value, onChange, onCreate, ...otherProps } = props
     let inputs = value.map( (oneValue, i) => {
         return <DropdownList
                     key={i}
                     value={oneValue}
                     onChange={value => onChange({value, i})}
+                    onCreate={value => onCreate({value, i})}
                     {...otherProps}
                 />
     })

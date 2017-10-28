@@ -67,7 +67,7 @@ export default class Project extends Component {
 
     handleCreate = valueKey => e => {
         let value = this.getValue(e, valueKey)
-        console.log('Handle change:','\n', `value: ${value}`, '\n', `valueKey: ${valueKey}`)
+        // console.log('Handle change:','\n', `value: ${value}`, '\n', `valueKey: ${valueKey}`)
         this.setState( (prevState, props) => {
             let newValue = null
             if (e.i !== undefined) {
@@ -133,7 +133,7 @@ export default class Project extends Component {
     }
 
     render() {
-        console.log('>>>>> state', '\n', this.state)
+        // console.log('>>>>> state', '\n', this.state)
         return (
             <form onSubmit={this.handleSubmit}>
                 <h2>{this.state.name}</h2>
