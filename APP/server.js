@@ -62,7 +62,7 @@ router.get('/api/autocomplete', (req, res) => {
             let standards = (
                 for s in standards
                 sort s._id desc
-                return distinct s._id
+                return distinct s._key
             )
             let topics = (
                 for p in projects
@@ -74,16 +74,16 @@ router.get('/api/autocomplete', (req, res) => {
             let products = (
                 for p in projects
                 filter HAS(p.details, 'finalProducts')
-                    and LENGTH(p.finalProducts) > 0
-                    for pr in p.finalProducts
+                    and LENGTH(p.details.finalProducts) > 0
+                    for pr in p.details.finalProducts
                     sort pr desc
                     return distinct pr
             )
             let checkpoints = (
                 for p in projects
                 filter HAS(p.details, 'checkpoints')
-                    and LENGTH(p.checkpoints) > 0
-                    for c in p.checkpoints
+                    and LENGTH(p.details.checkpoints) > 0
+                    for c in p.details.checkpoints
                     sort c desc
                     return distinct c
             )
