@@ -17,7 +17,7 @@
   },
   "proxy": {
     "/api": {
-      "target": "http://localhost:8529/_db/skdb/project-tagger",
+      "target": "http://localhost:8529/_db/skdb/project-builder",
       "ws": true
     }
   },

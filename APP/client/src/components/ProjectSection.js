@@ -10,12 +10,21 @@ export const ProjectSection = props => {
 
     let section = [<h3 key="header">{props.header || "No data."}</h3>]
 
-    if (type === 'text') {
-        section = [...section, <TextArea key="textarea" {...props} />]
-    } else if (type === 'multiselect') {
-        section = [...section, <Multiselect key="multiselect" {...props} />]
-    } else if (type === 'multitextinput') {
-        section = [...section, <MultiTextInput key="multitextinput" {...props} />]
+    switch (type) {
+        case 'text':
+            section = [...section, <TextArea key="textarea" {...props} />]
+            break
+        case 'multiselect':
+            section = [...section, <Multiselect key="multiselect" {...props} />]
+            break
+        case 'multitextinput':
+            section = [...section, <MultiTextInput key="multitextinput" {...props} />]
+            break
+        case 'dropdown':
+            section = [...section, <DropdownList key="dropdown" {...props} />]
+            break
+        default:
+            throw new Error('No recognized type.')
     }
     return section
 }
