@@ -25,7 +25,7 @@ router.get('/api/any-project', (req, res) => {
             sort RAND()
             limit 1
             return MERGE(
-                KEEP(p, '_id', '_key', 'name', 'link', 'details', 'topics'),
+                KEEP(p, '_id', '_key', 'name', 'link', 'details', 'minutes', 'topics'),
                 { source: FIRST(
                     let realPartner = FIRST(
                         for pa
