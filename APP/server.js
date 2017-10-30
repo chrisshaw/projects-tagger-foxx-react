@@ -20,6 +20,8 @@ router.get('/api/any-project', (req, res) => {
         console.log('New project endpoint hit.')
         const project = db._query(aql`
             for p in projects
+            filter !HAS(p, 'topics')
+                or LENGTH(p.topics) == 0
             sort RAND()
             limit 1
             return MERGE(
