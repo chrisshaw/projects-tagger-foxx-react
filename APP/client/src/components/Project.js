@@ -77,6 +77,9 @@ export default class Project extends Component {
                 // the state value is an array and we needed to send in the index
                 newValue = prevState[valueKey].slice()
                 newValue[e.i] = value
+            } else if (prevState[valueKey].constructor === Array) {
+                newValue = prevState[valueKey].slice()
+                newValue = [...newValue, value]
             } else {
                 newValue = value
             }
@@ -103,7 +106,7 @@ export default class Project extends Component {
 
     handleChange = valueKey => e => {
         let value = this.getValue(e, valueKey)
-        console.log('Handle create:','\n', `value: ${value}`, '\n', `valueKey: ${valueKey}`)
+        console.log('Handle change:','\n', `value: ${value}`, '\n', `valueKey: ${valueKey}`)
         if (e.i !== undefined) {
             // the state value is an array and we needed to send in the index
             this.setState( (prevState, props) => { 
@@ -201,6 +204,12 @@ export default class Project extends Component {
                         placeholder="Select something"
                     />
                     <ProjectSection
+                        header="Custom Requirements"
+                        type="text"
+                        value={this.state.requirements}
+                        onChange={this.handleChange('requirements')}
+                    />                    
+                    <ProjectSection
                         header="Checkpoints"
                         type="multitextinput"
                         value={this.state.checkpoints}
@@ -213,12 +222,6 @@ export default class Project extends Component {
                         handleAdd={this.handleAdd('checkpoints')}
                         handleRemove={this.handleRemove('checkpoints')}
                         placeholder="Select something"
-                    />
-                    <ProjectSection
-                        header="Custom Requirements"
-                        type="text"
-                        value={this.state.requirements}
-                        onChange={this.handleChange('requirements')}
                     />
                     <ProjectSection
                         header="Topics"

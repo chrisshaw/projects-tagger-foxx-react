@@ -43,7 +43,7 @@ router.get('/api/any-project', (req, res) => {
                     alignsTo
                     filter IS_SAME_COLLECTION('standards', s._id)
                     sort s._key desc
-                    return s._key
+                    return distinct s._key
                 ) }
             )
         `).toArray().pop()
@@ -98,6 +98,7 @@ router.post('/api/:projectKey/update', (req, res) => {
                 const source = params.source
                 const updatedAttributes = params.updatedAttributes
                 const standardConnections = params.standardConnections
+                const transactionTimestamp = Date.now()
 
                 const project = projects.document(projectKey.toString())
                 logProps(project)
@@ -108,7 +109,7 @@ router.post('/api/:projectKey/update', (req, res) => {
                         _from: `projects/${projectKey}`,
                         _to: `standards/${standardConnection}`,
                         creator: updatedAttributes.source,
-                        created: Date.now()
+                        created: transactionTimestamp
                     }
                     const alignsToResult = alignsTo.save(edge)
                 })
@@ -119,7 +120,7 @@ router.post('/api/:projectKey/update', (req, res) => {
                     const partnerResult = partners.save({
                         name: source.name,
                         creator: 'Partner Acquisition',
-                        created: Date.now()
+                        created: transactionTimestamp
                     })
                     partner = partnerResult._id
                 }
@@ -127,7 +128,7 @@ router.post('/api/:projectKey/update', (req, res) => {
                     _from: partner,
                     _to: `projects/${projectKey}`,
                     creator: source.name,
-                    created: Date.now()
+                    created: transactionTimestamp
                 }
                 placeOfResult = placeOf.save(placeOfEdge)
                 console.log('Project updated.')
