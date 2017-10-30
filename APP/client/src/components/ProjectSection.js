@@ -1,8 +1,9 @@
 import React from 'react';
-import Multiselect from 'react-widgets/lib/Multiselect'
-import DropdownList from 'react-widgets/lib/DropdownList'
+import { Multiselect, DropdownList, NumberPicker } from 'react-widgets'
 import 'react-widgets/dist/css/react-widgets.css'
 import './ProjectSection.css'
+// import numberLocalizer from 'react-widgets/lib/localizers/simple-number'
+// numberLocalizer()
 
 export const ProjectSection = props => {
     const type = props.type
@@ -22,6 +23,9 @@ export const ProjectSection = props => {
             break
         case 'dropdown':
             section = [...section, <DropdownList key="dropdown" {...props} />]
+            break
+        case 'number':
+            section = [...section, <NumberPicker key="number" {...props}/>]
             break
         default:
             throw new Error('No recognized type.')

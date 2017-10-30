@@ -19,6 +19,7 @@ export default class Project extends Component {
             finalProducts: [],
             checkpoints: [],
             requirements: [],
+            minutes: null,
             topics: [],
             standards: [],
             options: {}
@@ -44,6 +45,7 @@ export default class Project extends Component {
             finalProducts: project.details.finalProducts || [],
             checkpoints: project.details.checkpoints || [],
             requirements: project.details.requirements || '',
+            minutes: project.minutes || 0,
             topics: project.topics || [],
             standards: project.standards || []
         } ) 
@@ -223,6 +225,15 @@ export default class Project extends Component {
                         handleRemove={this.handleRemove('checkpoints')}
                         placeholder="Select something"
                     />
+                    {/* <ProjectSection
+                        header="Minutes Required"
+                        type="number"
+                        value={this.state.minutes}
+                        onChange={this.handleChange('minutes')}
+                    />
+                    <div>
+                        (That's <strong>{parseInt(this.state.minutes, 10) / (45 * 4)}</strong> weeks. 1 day = 45 minutes. 1 week = 4 days.)
+                    </div> */}
                     <ProjectSection
                         header="Topics"
                         type="multiselect"
