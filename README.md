@@ -1,3 +1,3 @@
 # Project Tagger
 
-Learning ArangoDB's Foxx with a simple document editor. Tag projects with topics.
+Learning ArangoDB's Foxx with a simple document editor. Tag projects with topics. Uses React.
