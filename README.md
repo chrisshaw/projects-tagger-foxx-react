@@ -1,2 +1,3 @@
-# sk-projects-tagger
-Simple app to tag projects
+# Project Tagger
+
+Learning ArangoDB's Foxx with a simple document editor. Tag projects with topics.
